@@ -8,50 +8,61 @@ import (
 	"github.com/Ernestlph/Blog_Aggregator/internal/config"
 )
 
-func main() {
-	// Step 1: Read the config file
-	cfg, err := config.Read()
-	if err != nil {
-		log.Fatalf("Error reading config: %v", err)
-	}
-	fmt.Printf("Read config: %+v\n", cfg)
+type state struct {
+	cfg *config.Config
+}
 
-	// Store config file in a new instance of state struct
-	newstate := config.State{Config: &cfg}
-
-	// Create a new instance of the commands struct with an initialized map of handler functions
-	commands := config.Commands{
-		// Ensure any map or lists are initiated
-		Handlers: make(map[string]func(*config.State, config.Command) error),
-	}
-
-	// Register a handler function for the login command
-	commands.Register("login", handlerLogin)
-
-	// Use os.Args to get the command-line arguments passed in by the user
-	args := os.Args[1:] // Skip the first argument as it is the program name
-
-	if len(args) < 1 {
-		log.Println("No command provided!")
+func parseArgs() (cmdName string, cmdArgs []string, err error) {
+	if len(os.Args) == 1 {
+		fmt.Println("Error: not enough arguments were provided")
+		os.Exit(1)
 		return
 	}
-
-	// Construct the Command struct
-	cmd := config.Command{
-		Name: args[0],
-		Args: args[1:], // Remaining arguments are for the command
+	if (len(os.Args) == 2) && (os.Args[1] == "login") {
+		fmt.Println("Error: a username is required")
+		os.Exit(1)
+		return
 	}
-
-	// Run the command using the commands struct
-	if err := commands.Run(&state, cmd); err != nil {
-		log.Fatalf("Error running command: %v", err)
+	if len(os.Args) < 3 {
+		fmt.Println("Error: unknown command")
+		os.Exit(1)
+		return
 	}
+	cmdName = os.Args[1]
+	cmdArgs = os.Args[2:]
+	return cmdName, cmdArgs, nil
 
-	// Read the config file again after update
-	cfg, err = config.Read()
+}
+
+func main() {
+	// Parse command line args first
+	cmdName, cmdArgs, err := parseArgs()
 	if err != nil {
-		log.Fatalf("Error reading updated config: %v", err)
+		log.Fatal(err)
 	}
 
-	fmt.Printf("Updated Config: %+v\n", cfg)
+	// Reads config which also returns a config variable
+	cfg, err := config.Read()
+	if err != nil {
+		log.Fatalf("error reading config: %v", err)
+	}
+
+	// Create a state object, which contains the config from Read
+	programState := &state{
+		cfg: &cfg,
+	}
+
+	// Create commands struct and initializes empty map
+	cmds := commands{
+		registeredCommands: make(map[string]func(*state, command) error),
+	}
+
+	// Register commands
+	cmds.register("login", handlerLogin)
+
+	// Runs command
+	err = cmds.run(programState, command{Name: cmdName, Args: cmdArgs})
+	if err != nil {
+		log.Fatal(err)
+	}
 }
