@@ -76,6 +76,13 @@ func main() {
 	cmds.register("register", handlerRegister)
 	cmds.register("reset", handlerResetDatabase)
 	cmds.register("users", handlerGetUsers)
+	cmds.register("agg", handlerAgg)
+	cmds.register("feeds", handlerFeeds)
+	cmds.register("follow", middlewareLoggedIn(handlerFollowFeed))
+	cmds.register("addfeed", middlewareLoggedIn(handlerAddFeed))
+	cmds.register("following", middlewareLoggedIn(handlerFollowing))
+	cmds.register("unfollow", middlewareLoggedIn(handlerUnfollowFeed))
+	cmds.register("browse", middlewareLoggedIn(handlerBrowse))
 
 	// Runs command if command not found return error with code 1
 	err = cmds.run(programState, command{Name: cmdName, Args: cmdArgs})

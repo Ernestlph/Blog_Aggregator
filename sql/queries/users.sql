@@ -23,3 +23,7 @@ ELSE name
 END AS name
 FROM users;
 
+-- name: GetUserfromID :one
+SELECT * FROM users
+WHERE id = $1 LIMIT 1;
+
