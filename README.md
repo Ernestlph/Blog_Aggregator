@@ -15,11 +15,18 @@ Before running Gator, ensure you have the following installed:
 
 ## Installation
 
-To install the `gator` CLI, use the `go install` command:
+1.  **Install using `go install`:**
+    ```bash
+    go install [github.com/Ernestlph/Blog_Aggregator@latest](https://github.com/Ernestlph/Blog_Aggregator@latest)
+    ```
+    This command will compile the `gator` CLI and install the executable as `Blog_Aggregator` in your Go binary directory (typically `$GOPATH/bin` or `$HOME/go/bin`).
 
-```bash
-go install github.com/Ernestlph/Blog_Aggregator@latest
-```
+2.  **Rename the executable to `gator`:**
+    After installation, you need to rename the executable from `Blog_Aggregator` to `gator`.  Use the following command, adjusting the path if necessary to match your Go binary directory:
+    ```bash
+    mv $GOPATH/bin/Blog_Aggregator $GOPATH/bin/gator  # Or use $HOME/go/bin if GOPATH is not set, or $GOBIN if GOBIN is set
+    ```
+    **Important:**  Ensure you are using the correct path to your Go binary directory (`$GOPATH/bin`, `$HOME/go/bin`, or `$GOBIN`) in the command above.
 
 ## Configuration
 
